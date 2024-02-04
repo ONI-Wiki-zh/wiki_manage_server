@@ -11,28 +11,34 @@ class WikiNamespaces(models.Model):
 
 class Page(models.Model):
     """页面"""
-    page_id = models.IntegerField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=256, null="")
-    ns = models.IntegerField(max_length=10000, null=-100)
+    ns = models.IntegerField()
     redirect_title = models.CharField(max_length=1000, null="")
 
 
 class PageEmbedin(models.Model):
     """嵌入链接"""
-    page_id = models.IntegerField()
+    id = models.IntegerField(primary_key=True)
     embeddin_page_id = models.IntegerField()
 
 
 class PageRevision(models.Model):
     """页面历史版本"""
-    page_id = models.IntegerField(primary_key=True)
-    origin_id = models.IntegerField()
+    id = models.IntegerField(primary_key=True)
+    origin = models.IntegerField()
+    pageid = models.ForeignKey('Page', on_delete=models.CASCADE)
     sha1 = models.CharField(max_length=41)
     timestamp = models.CharField(max_length=20)
     time = models.TimeField()
     format = models.CharField(max_length=20)
-    user_name = models.CharField(max_length=100, blank=True, null=True)
-    user_id = models.CharField(max_length=100, blank=True, null=True)
-    user_ip = models.CharField(max_length=48, blank=True, null=True)
+    contributor = models.ForeignKey('Contributor', on_delete=models.CASCADE)
     comment = models.CharField(max_length=256, blank=True, null=True)
     text = models.TextField()
+
+
+class Contributor(models.Model):
+    """贡献者"""
+    id = models.CharField(primary_key=True, max_length=256)
+    user_name = models.CharField(max_length=256, blank=True, null=True)
+    user_ip = models.CharField(max_length=48, blank=True, null=True)

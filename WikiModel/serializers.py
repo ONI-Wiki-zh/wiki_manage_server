@@ -14,7 +14,7 @@ class WikiNamespacesSerializer(serializers.ModelSerializer):
 class PageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Page
-        fields = ('page_id',
+        fields = ('id',
                   'title',
                   'ns',
                   'redirect_title')
