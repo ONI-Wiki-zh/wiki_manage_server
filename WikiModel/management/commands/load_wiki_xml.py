@@ -1,7 +1,7 @@
 import json
 import os.path
 from django.core.management.base import BaseCommand
-from WikiModel.models import Page, PageRevision, Contributor
+from WikiModel.models import Page, PageRevision, Contributor, PageDoc
 from django.conf import settings
 from django.db import connection
 from datetime import datetime
@@ -33,6 +33,7 @@ def saveContributor(page):
         )
         model_instance.save()
 
+
 def savePage(page):
     # 文章概要
     redirect_title = ""
@@ -47,6 +48,18 @@ def savePage(page):
     )
     model_instance.save()
     pass
+
+
+def initPageDoc():
+    # 帮助文档
+    for page in Page.objects.all():
+        pagedoc = Page.objects.filter(title=page.title+"/doc").first()
+        if pagedoc:
+            model_instance = PageDoc(
+                id=page.id,
+                pagedoc=pagedoc,
+            )
+            model_instance.save()
 
 
 def savePageRevision(page):
@@ -100,10 +113,13 @@ class Command(BaseCommand):
             self.stdout.write('No Page Data')
             return
         # 重置表
+        table_name = PageRevision._meta.db_table  # 获取表名
+        with connection.cursor() as cursor:
+            cursor.execute(f'DELETE FROM {table_name};')
         table_name = Page._meta.db_table  # 获取表名
         with connection.cursor() as cursor:
             cursor.execute(f'DELETE FROM {table_name};')
-        table_name = PageRevision._meta.db_table  # 获取表名
+        table_name = PageDoc._meta.db_table  # 获取表名
         with connection.cursor() as cursor:
             cursor.execute(f'DELETE FROM {table_name};')
         table_name = Contributor._meta.db_table  # 获取表名
@@ -113,6 +129,7 @@ class Command(BaseCommand):
         for page in pages:
             saveContributor(page)
             savePage(page)
+        initPageDoc()
         for page in pages:
             savePageRevision(page)
 

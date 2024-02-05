@@ -17,6 +17,12 @@ class Page(models.Model):
     redirect_title = models.CharField(max_length=1000, null="")
 
 
+class PageDoc(models.Model):
+    """帮助文档"""
+    id = models.IntegerField(primary_key=True)
+    pagedoc = models.OneToOneField('Page', on_delete=models.CASCADE)
+
+
 class PageEmbedin(models.Model):
     """嵌入链接"""
     id = models.IntegerField(primary_key=True)
