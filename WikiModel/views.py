@@ -2,12 +2,13 @@ from django.shortcuts import render
 from django.http.response import JsonResponse
 from django.db.models import Max
 
-from WikiModel.models import Page, PageRevision, Contributor
+from WikiModel.models import Page, PageRevision, Contributor, PageDoc
 from rest_framework.decorators import api_view
 
 
 @api_view(['GET', 'POST', 'DELETE'])
 def page_list(request):
+    """页面列表"""
     if request.method == 'GET':
         pages = Page.objects.all()
 
@@ -23,3 +24,11 @@ def page_list(request):
 
         return JsonResponse(list(res.values()), safe=False)
         # 'safe=False' for objects serialization
+
+@api_view(['GET'])
+def pagedoc_list(request):
+    """帮助文档"""
+    if request.method == 'GET':
+        pages = PageDoc.objects.all().annotate(docTitle=Max('pagedoc__title'))
+
+        return JsonResponse(list(pages.values()), safe=False)
