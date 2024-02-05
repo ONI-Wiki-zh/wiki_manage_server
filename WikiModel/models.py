@@ -20,7 +20,7 @@ class Page(models.Model):
 class PageEmbedin(models.Model):
     """嵌入链接"""
     id = models.IntegerField(primary_key=True)
-    embeddin_page_id = models.IntegerField()
+    embeddin = models.IntegerField()
 
 
 class PageRevision(models.Model):
