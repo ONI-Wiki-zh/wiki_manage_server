@@ -16,13 +16,26 @@ def page_list(request):
         ns = request.query_params.get('ns', None)
         if ns is not None:
             pages = Page.objects.filter(ns=ns)
-        res = pages.all().annotate(latest_timestamp=Max('pagerevision__timestamp'))\
-            .annotate(contributorId=Max("pagerevision__contributor__id"))\
-            .annotate(contributorName=Max("pagerevision__contributor__user_name"))\
-            .annotate(contributorIP=Max("pagerevision__contributor__user_ip"))\
-            .annotate(comment=Max("pagerevision__comment"))
+        pages = pages.all().annotate(latest_timestamp=Max('pagerevision__timestamp'))
+        table = []
+        for page in pages:
+            latest_revision = page.pagerevision_set.get(timestamp=page.latest_timestamp)
+            print(latest_revision.contributor)
+            contributor = latest_revision.contributor
+            row = {
+                "id": page.id,
+                "title": page.title,
+                "ns": page.ns,
+                "redirect_title": page.redirect_title,
+                "latest_timestamp": page.latest_timestamp,
+                "contributorId": contributor.id,
+                "contributorName": contributor.user_name,
+                "contributorIP": contributor.user_ip,
+                "comment": latest_revision.comment
+            }
+            table.append(row)
 
-        return JsonResponse(list(res.values()), safe=False)
+        return JsonResponse(table, safe=False)
         # 'safe=False' for objects serialization
 
 @api_view(['GET'])
