@@ -27,9 +27,9 @@ def saveContributor(page):
             else:
                 user_id = user_ip
         model_instance = Contributor(
-            id = user_id,
-            user_name = contributor.get('username', None),
-            user_ip = user_ip
+            id=user_id,
+            user_name=contributor.get('username', None),
+            user_ip=user_ip
         )
         model_instance.save()
 
@@ -53,7 +53,7 @@ def savePage(page):
 def initPageDoc():
     # 帮助文档
     for page in Page.objects.all():
-        pagedoc = Page.objects.filter(title=page.title+"/doc").first()
+        pagedoc = Page.objects.filter(title=page.title + "/doc").first()
         if pagedoc:
             model_instance = PageDoc(
                 id=page.id,
@@ -62,7 +62,7 @@ def initPageDoc():
             model_instance.save()
 
 
-def savePageRevision(page):
+def savePageRevision(self, page):
     # 文章历史版本
     data = page.get('revision', None)
     if data is None:
@@ -101,7 +101,7 @@ class Command(BaseCommand):
     help = 'Load data from JSON file into SQLite'
 
     def handle(self, *args, **options):
-        file_path = os.path.join(settings.BASE_DIR, 'data_input', 'zhoxygennotincluded_pages_current_bot_20240127.json')
+        file_path = os.path.join(settings.BASE_DIR, 'data_input', 'zhoxygennotincluded_pages_full_20240127.json')
         with open(file_path, 'r') as f:
             data = json.load(f)
         mediawiki = data.get('mediawiki', None)
@@ -116,21 +116,38 @@ class Command(BaseCommand):
         table_name = PageRevision._meta.db_table  # 获取表名
         with connection.cursor() as cursor:
             cursor.execute(f'DELETE FROM {table_name};')
-        table_name = Page._meta.db_table  # 获取表名
-        with connection.cursor() as cursor:
-            cursor.execute(f'DELETE FROM {table_name};')
+        self.stdout.write('table:PageRevision clean')
+
         table_name = PageDoc._meta.db_table  # 获取表名
         with connection.cursor() as cursor:
             cursor.execute(f'DELETE FROM {table_name};')
+        self.stdout.write('table:PageDoc clean')
+
+        table_name = Page._meta.db_table  # 获取表名
+        with connection.cursor() as cursor:
+            cursor.execute(f'DELETE FROM {table_name};')
+        self.stdout.write('table:Page clean')
+
         table_name = Contributor._meta.db_table  # 获取表名
         with connection.cursor() as cursor:
             cursor.execute(f'DELETE FROM {table_name};')
+        self.stdout.write('table:Contributor clean')
+
         # 载入数据
+        total = len(pages)
+        current = 0
         for page in pages:
+            if current % 100 == 0:
+                self.stdout.write('savePage: ' + str(current) + "/" + str(total))
             saveContributor(page)
             savePage(page)
+            current += 1
         initPageDoc()
+        current = 0
         for page in pages:
-            savePageRevision(page)
+            if current % 100 == 0:
+                self.stdout.write('savePageRevision: ' + str(current) + "/" + str(total))
+            savePageRevision(self, page)
+            current += 1
 
         self.stdout.write('wiki xml data loaded!')
