@@ -68,7 +68,8 @@ def savePageRevision(self, page):
     if data is None:
         return
     revisions = []
-    if type(data) == list:
+    is_list = type(data) == list
+    if is_list:
         revisions = data
     else:
         revisions.append(data)
@@ -81,6 +82,7 @@ def savePageRevision(self, page):
                 user_id = "0.0.0.0"
             else:
                 user_id = user_ip
+        text = revision['text'].get('#text', "")
         model_instance = PageRevision(
             id=revision['id'],
             origin=revision['origin'],
@@ -91,7 +93,7 @@ def savePageRevision(self, page):
             format=revision['format'],
             contributor=Contributor.objects.filter(id=user_id).first(),
             comment=revision.get('comment', None),
-            text=revision['text'],
+            text=text,
         )
         model_instance.save()
     pass
