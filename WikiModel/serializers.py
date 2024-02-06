@@ -1,9 +1,8 @@
-from rest_framework import serializers 
-from WikiModel.models import WikiNamespaces, Page
+from rest_framework import serializers
+from WikiModel.models import WikiNamespaces, Page, Contributor
 
 
 class WikiNamespacesSerializer(serializers.ModelSerializer):
- 
     class Meta:
         model = WikiNamespaces
         fields = ('key',
@@ -18,3 +17,11 @@ class PageSerializer(serializers.ModelSerializer):
                   'title',
                   'ns',
                   'redirect_title')
+
+
+class ContributorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contributor
+        fields = ('id',
+                  'user_name',
+                  'user_ip')

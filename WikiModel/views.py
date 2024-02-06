@@ -3,6 +3,7 @@ from django.http.response import JsonResponse
 from django.db.models import Max
 
 from WikiModel.models import Page, PageRevision, Contributor, PageDoc
+from WikiModel.serializers import ContributorSerializer
 from rest_framework.decorators import api_view
 
 
@@ -57,4 +58,17 @@ def page_revision_list(request):
         else:
             revisions = PageRevision.objects.all().filter(pageid=pageid).order_by('-timestamp')
             return JsonResponse(list(revisions.values()), safe=False)
+    pass
+
+@api_view(['GET'])
+def contributor(request):
+    if request.method == 'GET':
+        user_id = request.query_params.get('id', None)
+        if user_id is None:
+            return JsonResponse([{"error": "no pageid params"}], safe=False)
+        else:
+            user = Contributor.objects.all().filter(id=user_id)
+            serializer = ContributorSerializer(user, many=True)
+            return JsonResponse(serializer.data, safe=False)
+            # 'safe=False' for objects serialization
     pass
