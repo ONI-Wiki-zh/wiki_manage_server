@@ -17,6 +17,9 @@ def page_list(request):
         ns = request.query_params.get('ns', None)
         if ns is not None:
             pages = Page.objects.filter(ns=ns)
+        pageid = request.query_params.get('pageid', None)
+        if pageid is not None:
+            pages = Page.objects.filter(id=pageid)
         pages = pages.all().annotate(latest_timestamp=Max('pagerevision__timestamp'))
         table = []
         for page in pages:
