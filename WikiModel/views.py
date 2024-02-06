@@ -31,6 +31,7 @@ def page_list(request):
                 "contributorId": contributor.id,
                 "contributorName": contributor.user_name,
                 "contributorIP": contributor.user_ip,
+                "revisionId": latest_revision.id,
                 "comment": latest_revision.comment
             }
             table.append(row)
@@ -45,3 +46,15 @@ def pagedoc_list(request):
         pages = PageDoc.objects.all().annotate(docTitle=Max('pagedoc__title'))
 
         return JsonResponse(list(pages.values()), safe=False)
+
+@api_view(['GET'])
+def page_revision_list(request):
+    """文章版本"""
+    if request.method == 'GET':
+        pageid = request.query_params.get('pageid', None)
+        if pageid is None:
+            return JsonResponse([{"error": "no pageid params"}], safe=False)
+        else:
+            revisions = PageRevision.objects.all().filter(pageid=pageid).order_by('-timestamp')
+            return JsonResponse(list(revisions.values()), safe=False)
+    pass
