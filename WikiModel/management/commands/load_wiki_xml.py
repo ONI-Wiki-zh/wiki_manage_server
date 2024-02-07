@@ -1,5 +1,6 @@
 import json
 import os.path
+import xmltodict
 from django.core.management.base import BaseCommand
 from WikiModel.models import Page, PageRevision, Contributor, PageDoc
 from django.conf import settings
@@ -103,9 +104,22 @@ class Command(BaseCommand):
     help = 'Load data from JSON file into SQLite'
 
     def handle(self, *args, **options):
-        file_path = os.path.join(settings.BASE_DIR, 'data_input', 'zhoxygennotincluded_pages_full_20240127.json')
-        with open(file_path, 'r') as f:
-            data = json.load(f)
+        # 读取xml文件
+        data = None
+        for file_name in os.listdir(os.path.join(settings.BASE_DIR, 'data_input')):
+            if file_name.startswith("zhoxygennotincluded_pages_full_"):
+                with open(os.path.join(settings.BASE_DIR, 'data_input', file_name), 'r') as file:
+                    xml_data = file.read()
+                    json_data = xmltodict.parse(xml_data)
+                    data = json_data
+                    # 导出json文件
+                    with open(os.path.join(settings.BASE_DIR, 'data_output', file_name.replace(".xml", ".json")), 'w', encoding='utf-8') as f:
+                        json.dump(json_data, f, indent=2, ensure_ascii=False)
+        if data is None:
+            self.stdout.write('Error: No data in File!')
+            return
+
+        # 分析json文件
         mediawiki = data.get('mediawiki', None)
         if mediawiki is None:
             self.stdout.write('No MediaWiki Data')

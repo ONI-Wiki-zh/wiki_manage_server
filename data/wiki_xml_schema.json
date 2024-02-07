@@ -1,0 +1,327 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "mediawiki": {
+            "type": "object",
+            "properties": {
+                "@xmlns": {
+                    "type": "string"
+                },
+                "@xmlns:xsi": {
+                    "type": "string"
+                },
+                "@xsi:schemaLocation": {
+                    "type": "string"
+                },
+                "@version": {
+                    "type": "string"
+                },
+                "@xml:lang": {
+                    "type": "string"
+                },
+                "siteinfo": {
+                    "type": "object",
+                    "properties": {
+                        "sitename": {
+                            "type": "string",
+                            "description": "站点名称"
+                        },
+                        "dbname": {
+                            "type": "string",
+                            "description": "数据库名称"
+                        },
+                        "base": {
+                            "type": "string",
+                            "description": "站点地址"
+                        },
+                        "generator": {
+                            "type": "string",
+                            "description": "生成器"
+                        },
+                        "case": {
+                            "type": "string"
+                        },
+                        "namespaces": {
+                            "type": "object",
+                            "properties": {
+                                "namespace": {
+                                    "type": "array",
+                                    "description": "命名空间",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "@key": {
+                                                "type": "string",
+                                                "description": "命名空间代码"
+                                            },
+                                            "@case": {
+                                                "type": "string"
+                                            },
+                                            "#text": {
+                                                "type": "string",
+                                                "description": "名称"
+                                            }
+                                        },
+                                        "required": [
+                                            "@case",
+                                            "@key"
+                                        ]
+                                    }
+                                }
+                            },
+                            "required": [
+                                "namespace"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "base",
+                        "case",
+                        "dbname",
+                        "generator",
+                        "namespaces",
+                        "sitename"
+                    ]
+                },
+                "page": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {
+                                "type": "string",
+                                "description": "页面标题"
+                            },
+                            "ns": {
+                                "type": "string",
+                                "description": "命名空间代码"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "revision": {
+                                "anyOf": [
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "timestamp": {
+                                                    "type": "string",
+                                                    "description": "时间戳"
+                                                },
+                                                "contributor": {
+                                                    "type": "object",
+                                                    "description": "贡献者",
+                                                    "properties": {
+                                                        "username": {
+                                                            "type": "string",
+                                                            "description": "用户名"
+                                                        },
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "ip": {
+                                                            "type": "string",
+                                                            "description": "IP地址"
+                                                        }
+                                                    }
+                                                },
+                                                "comment": {
+                                                    "type": "string",
+                                                    "description": "提交信息"
+                                                },
+                                                "origin": {
+                                                    "type": "string",
+                                                    "description": "源页面id"
+                                                },
+                                                "model": {
+                                                    "type": "string",
+                                                    "description": "模板格式"
+                                                },
+                                                "format": {
+                                                    "type": "string",
+                                                    "description": "数据格式"
+                                                },
+                                                "text": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "@bytes": {
+                                                            "type": "string",
+                                                            "description": "字节码编号"
+                                                        },
+                                                        "@sha1": {
+                                                            "type": "string",
+                                                            "description": "sha1值"
+                                                        },
+                                                        "@xml:space": {
+                                                            "type": "string",
+                                                            "description": "存储空间预设"
+                                                        },
+                                                        "#text": {
+                                                            "type": "string",
+                                                            "description": "正文内容"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "@bytes",
+                                                        "@sha1",
+                                                        "@xml:space"
+                                                    ]
+                                                },
+                                                "sha1": {
+                                                    "type": "string",
+                                                    "description": "sha1值"
+                                                },
+                                                "parentid": {
+                                                    "type": "string",
+                                                    "description": "父页面id"
+                                                },
+                                                "minor": {
+                                                    "type": "null"
+                                                }
+                                            },
+                                            "required": [
+                                                "contributor",
+                                                "format",
+                                                "id",
+                                                "model",
+                                                "origin",
+                                                "sha1",
+                                                "text",
+                                                "timestamp"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "timestamp": {
+                                                "type": "string",
+                                                "description": "时间戳"
+                                            },
+                                            "contributor": {
+                                                "type": "object",
+                                                "description": "贡献者",
+                                                "properties": {
+                                                    "username": {
+                                                        "type": "string",
+                                                        "description": "用户名"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "ip": {
+                                                        "type": "string",
+                                                        "description": "IP地址"
+                                                    }
+                                                }
+                                            },
+                                            "minor": {
+                                                "type": "null"
+                                            },
+                                            "comment": {
+                                                "type": "string",
+                                                "description": "提交信息"
+                                            },
+                                            "origin": {
+                                                "type": "string",
+                                                "description": "源页面id"
+                                            },
+                                            "model": {
+                                                "type": "string",
+                                                "description": "模板格式"
+                                            },
+                                            "format": {
+                                                "type": "string",
+                                                "description": "数据格式"
+                                            },
+                                            "text": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "@bytes": {
+                                                        "type": "string",
+                                                        "description": "字节码编号"
+                                                    },
+                                                    "@sha1": {
+                                                        "type": "string",
+                                                        "description": "sha1值"
+                                                    },
+                                                    "@xml:space": {
+                                                        "type": "string",
+                                                        "description": "存储空间预设"
+                                                    },
+                                                    "#text": {
+                                                        "type": "string",
+                                                        "description": "正文内容"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "@bytes",
+                                                    "@sha1",
+                                                    "@xml:space"
+                                                ]
+                                            },
+                                            "sha1": {
+                                                "type": "string",
+                                                "description": "sha1值"
+                                            }
+                                        },
+                                        "required": [
+                                            "contributor",
+                                            "format",
+                                            "id",
+                                            "model",
+                                            "origin",
+                                            "sha1",
+                                            "text",
+                                            "timestamp"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "redirect": {
+                                "type": "object",
+                                "description": "重定向",
+                                "properties": {
+                                    "@title": {
+                                        "type": "string",
+                                        "description": "标题"
+                                    }
+                                },
+                                "required": [
+                                    "@title"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "ns",
+                            "revision",
+                            "title"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "@version",
+                "@xml:lang",
+                "@xmlns",
+                "@xmlns:xsi",
+                "@xsi:schemaLocation",
+                "page",
+                "siteinfo"
+            ]
+        }
+    },
+    "required": [
+        "mediawiki"
+    ]
+}

@@ -2,4 +2,5 @@ __pycache__
 .idea
 dist
 data_input
+data_output
 db.sqlite3
