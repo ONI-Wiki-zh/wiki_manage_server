@@ -4,7 +4,7 @@
 
 1. 系统已安装python3.x开发环境
 
-2. 浏览器访问wiki站点上标题为`Special:统计`的[页面](https://oxygennotincluded.fandom.com/zh/wiki/Special:%E7%BB%9F%E8%AE%A1)，下载wiki站点的全站备份数据。
+2. 浏览器访问wiki站点上标题为`Special:统计`的[特殊页面](https://oxygennotincluded.fandom.com/zh/wiki/Special:%E7%BB%9F%E8%AE%A1)，下载wiki站点的全站备份数据。
 
 3. 解压下载的`.zip`压缩包后，复制`.xml`文件至项目根目录下的`data_output`目录下。
 
@@ -14,14 +14,16 @@
    sh install.sh
    ```
 
-4. 脚本运行结束后，输入命令，启动服务
+4. 打开[**缺氧中文wiki管理-前端项目**](https://github.com/ONI-Wiki-zh/wiki-manage)，打包项目。将打包产生的`dist`目录，复制到本项目根目录下。
+
+5. 脚本运行结束后，输入命令，启动服务
 
    ```shell
    python3 manage.py runserver
    ```
-   
-   根据提示，复制网址，在浏览器打开。
-   
+
+   根据命令窗口的提示，复制网址，在浏览器打开。
+
    
 
 ## 手动运行步骤
@@ -92,9 +94,8 @@ python3 manage.py load_wiki_xml
 
 ### 部署前端项目
 
-1. 打开*缺氧中文管理前端项目*，打包项目。
-
-2. 打包完成后，将*缺氧中文管理前端项目*下的`dist`目录，复制至*缺氧中文管理后端项目*的`根目录`下。
+1. 打开[**缺氧中文wiki管理-前端项目**](https://github.com/ONI-Wiki-zh/wiki-manage)，打包项目。
+2. 打包完成后，将[**缺氧中文wiki管理-前端项目**](https://github.com/ONI-Wiki-zh/wiki-manage)下生成的`dist`目录，复制至本项目的根目录下。
 
 
 
