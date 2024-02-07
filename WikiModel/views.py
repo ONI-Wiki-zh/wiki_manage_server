@@ -6,6 +6,8 @@ from WikiModel.models import Page, PageRevision, Contributor, PageDoc
 from WikiModel.serializers import ContributorSerializer
 from rest_framework.decorators import api_view
 
+import WikiModel.wikisite.bot_format as bot_format
+
 
 @api_view(['GET', 'POST', 'DELETE'])
 def page_list(request):
@@ -74,4 +76,23 @@ def contributor(request):
             serializer = ContributorSerializer(user, many=True)
             return JsonResponse(serializer.data, safe=False)
             # 'safe=False' for objects serialization
+    pass
+
+@api_view(['GET'])
+def pull_format_page_list(request):
+    """获取需要修正文案格式的页面"""
+    if request.method == 'GET':
+        pagename = request.query_params.get('title', None)
+        if pagename is not None:
+            p = bot_format.getpage(pagename)
+            result = {
+                "title": p.title(),
+                "is_able_format": bot_format.is_able_format(p),
+                "text": p.text
+            }
+            return JsonResponse(result, safe=False)
+
+    return JsonResponse([{"error": "no pageid params"}], safe=False)
+
+
     pass
