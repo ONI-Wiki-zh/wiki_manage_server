@@ -1,11 +1,9 @@
 import re
-
 import pywikibot
 import regex
 import wikitextparser
 
 import utils
-from WikiModel.wikisite.constant_wiki import Site_ONI_ZH
 
 CJK = r'\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30fa\u30fc-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf' \
       r'\u4e00-\u9fff\uf900-\ufaff'
@@ -91,17 +89,6 @@ def is_able_format(p: pywikibot.Page):
 
     return True
 
-
-def update_text(p: pywikibot.Page, new_text):
-    """更新页面文本"""
-    p.text = new_text
-    utils.try_tags_save(p, ['auto-format'], summary="[[Project:格式指导|统一格式]]", watch=False)
-    pass
-
-
-def getpage(pagename: str):
-    page = pywikibot.Page(Site_ONI_ZH, pagename)
-    return page
 
 def format_page(p: pywikibot.Page):
     if not is_able_format(p):

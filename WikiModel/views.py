@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import json
 from django.http.response import JsonResponse
 from django.db.models import Max
 
@@ -7,11 +8,12 @@ from WikiModel.serializers import ContributorSerializer
 from rest_framework.decorators import api_view
 
 import WikiModel.wikisite.bot_format as bot_format
+from WikiModel.wikisite import bot_wiki
 
 
 @api_view(['GET', 'POST', 'DELETE'])
 def page_list(request):
-    """页面列表"""
+    """从数据库获取页面列表"""
     if request.method == 'GET':
         pages = Page.objects.all()
 
@@ -47,7 +49,7 @@ def page_list(request):
 
 @api_view(['GET'])
 def pagedoc_list(request):
-    """帮助文档"""
+    """从数据库获取帮助文档"""
     if request.method == 'GET':
         pages = PageDoc.objects.all().annotate(docTitle=Max('pagedoc__title'))
 
@@ -55,7 +57,7 @@ def pagedoc_list(request):
 
 @api_view(['GET'])
 def page_revision_list(request):
-    """文章版本"""
+    """从数据库获取文章版本"""
     if request.method == 'GET':
         pageid = request.query_params.get('pageid', None)
         if pageid is None:
@@ -67,6 +69,7 @@ def page_revision_list(request):
 
 @api_view(['GET'])
 def contributor(request):
+    """从数据库获取贡献者"""
     if request.method == 'GET':
         user_id = request.query_params.get('id', None)
         if user_id is None:
@@ -78,21 +81,67 @@ def contributor(request):
             # 'safe=False' for objects serialization
     pass
 
-@api_view(['GET'])
+@api_view(['POST'])
 def pull_format_page_list(request):
     """获取需要修正文案格式的页面"""
-    if request.method == 'GET':
-        pagename = request.query_params.get('title', None)
-        if pagename is not None:
-            p = bot_format.getpage(pagename)
-            result = {
-                "title": p.title(),
-                "is_able_format": bot_format.is_able_format(p),
-                "text": p.text
-            }
+
+    def getRes(p):
+        is_able_format = bot_format.is_able_format(p)
+        newText = p.text
+        if is_able_format:
+            newText = bot_format.format_str(newText)
+        return {
+            "title": p.title(),
+            "able": is_able_format and p.text != newText,
+            "oldText": p.text,
+            "newText": newText,
+            "latest_timestamp": p.latest_revision.timestamp
+        }
+
+    if request.method == 'POST':
+        params = json.loads(request.body)
+        model = params.get('model', 3)
+        result = []
+        if model == 1:
+            pages = bot_wiki.getRecentPages()
+            for page in pages:
+                r = getRes(page)
+                result.append(r)
             return JsonResponse(result, safe=False)
+        elif model == 2:
+            pages = bot_wiki.getAllPages()
+            for page in pages:
+                r = getRes(page)
+                result.append(r)
+            return JsonResponse(result, safe=False)
+        elif model == 3:
+            pagename = params.get('title', None)
+            if pagename is not None:
+                page = bot_wiki.getpage(pagename)
+                r = getRes(page)
+                result.append(r)
+                return JsonResponse(result, safe=False)
 
     return JsonResponse([{"error": "no pageid params"}], safe=False)
+    pass
 
 
+@api_view(['POST'])
+def updatePage(request):
+    """更新页面"""
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        if data is not None:
+            bot_wiki.loginBot()
+            result = []
+            for item in data:
+                title = item.get('title', None)
+                text = item.get('text', None)
+                if title and text:
+                    bot_wiki.update_text(title, text)
+                    result.append(title)
+                    print("update page:", title)
+                    pass
+            return JsonResponse(result, safe=False)
+    return JsonResponse([{"error": "no pageid params"}], safe=False)
     pass
