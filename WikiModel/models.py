@@ -29,6 +29,18 @@ class PageEmbedin(models.Model):
     embeddin = models.IntegerField()
 
 
+class PageStatus(models.Model):
+    """页面"""
+    id = models.IntegerField(primary_key=True)
+    title = models.CharField(max_length=256, null="")
+    ns = models.IntegerField()
+    target = models.CharField(max_length=20, null="")
+    outdated = models.BooleanField()
+    noneTargetLangPage = models.BooleanField()
+    onewayLangLink = models.BooleanField()
+    multiBackLangLinks = models.BooleanField()
+
+
 class PageRevision(models.Model):
     """页面历史版本"""
     id = models.IntegerField(primary_key=True)

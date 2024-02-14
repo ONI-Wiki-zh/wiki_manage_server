@@ -3,11 +3,12 @@ import json
 from django.http.response import JsonResponse
 from django.db.models import Max
 
-from WikiModel.models import Page, PageRevision, Contributor, PageDoc
+from WikiModel.models import Page, PageRevision, Contributor, PageDoc, PageStatus
 from WikiModel.serializers import ContributorSerializer
 from rest_framework.decorators import api_view
 
 import WikiModel.wikisite.bot_format as bot_format
+import WikiModel.wikisite.bot_status as bot_status
 from WikiModel.wikisite import bot_wiki
 
 
@@ -47,6 +48,44 @@ def page_list(request):
         return JsonResponse(table, safe=False)
         # 'safe=False' for objects serialization
 
+
+@api_view(['GET', 'POST', 'DELETE'])
+def page_status(request):
+    """从数据库获取页面状态"""
+    if request.method == 'GET':
+        target_lang = request.query_params.get('lang', None)
+        if target_lang is not None:
+            result = bot_status.get_page(target_lang)
+            # 尝试保存至本地数据库
+            for item in result:
+                instance = PageStatus.objects.filter(id=item['id']).first()
+                if instance is None:
+                    instance = PageStatus(
+                        id=item['id'],
+                        title=item['title'],
+                        ns=item['ns'],
+                        target=item['target'],
+                        outdated=item['outdated'],
+                        noneTargetLangPage=item['noneTargetLangPage'],
+                        onewayLangLink=item['onewayLangLink'],
+                        multiBackLangLinks=item['multiBackLangLinks'],
+                    )
+                else:
+                    instance.title = item['title']
+                    instance.ns = item['ns']
+                    instance.target = item['target']
+                    instance.outdated = item['outdated']
+                    instance.noneTargetLangPage = item['noneTargetLangPage']
+                    instance.onewayLangLink = item['onewayLangLink']
+                    instance.multiBackLangLinks = item['multiBackLangLinks']
+                instance.save()
+            return JsonResponse(result, safe=False)
+        return JsonResponse([{"error": ""}], safe=False)
+        pass
+    return JsonResponse([{"error": "no params: lang"}], safe=False)
+    pass
+
+
 @api_view(['GET'])
 def pagedoc_list(request):
     """从数据库获取帮助文档"""
@@ -54,6 +93,7 @@ def pagedoc_list(request):
         pages = PageDoc.objects.all().annotate(docTitle=Max('pagedoc__title'))
 
         return JsonResponse(list(pages.values()), safe=False)
+
 
 @api_view(['GET'])
 def page_revision_list(request):
@@ -66,6 +106,7 @@ def page_revision_list(request):
             revisions = PageRevision.objects.all().filter(pageid=pageid).order_by('-timestamp')
             return JsonResponse(list(revisions.values()), safe=False)
     pass
+
 
 @api_view(['GET'])
 def contributor(request):
@@ -80,6 +121,7 @@ def contributor(request):
             return JsonResponse(serializer.data, safe=False)
             # 'safe=False' for objects serialization
     pass
+
 
 @api_view(['POST'])
 def pull_format_page_list(request):
