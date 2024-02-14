@@ -174,7 +174,6 @@ def updatePage(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         if data is not None:
-            bot_wiki.loginBot()
             result = []
             for item in data:
                 title = item.get('title', None)
@@ -187,3 +186,21 @@ def updatePage(request):
             return JsonResponse(result, safe=False)
     return JsonResponse([{"error": "no pageid params"}], safe=False)
     pass
+
+
+@api_view(['POST'])
+def loginWiki(request):
+    """登录wiki站点"""
+    if request.method == 'POST':
+        bot_wiki.loginBot()
+        return JsonResponse([{"msg": "Login success!"}], safe=False)
+    return JsonResponse([{"error": ""}], safe=False)
+
+
+@api_view(['GET'])
+def logoutWiki(request):
+    """退出wiki站点"""
+    if request.method == 'GET':
+        bot_wiki.logoutBot()
+        return JsonResponse([{"msg": "Logout success!"}], safe=False)
+    return JsonResponse([{"error": ""}], safe=False)

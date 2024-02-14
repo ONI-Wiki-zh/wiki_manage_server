@@ -69,5 +69,11 @@ def loginBot():
     Site_ONI_ZH.login()
 
 
+def logoutBot():
+    """登录机器人账号"""
+    Site_ONI_ZH = pywikibot.Site("zh", "oni")
+    Site_ONI_ZH.logout()
+
+
 if __name__ == '__main__':
     pass
