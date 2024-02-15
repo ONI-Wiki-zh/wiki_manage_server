@@ -30,6 +30,7 @@ def savePageStatus(item):
             noneTargetLangPage=item['noneTargetLangPage'],
             onewayLangLink=item['onewayLangLink'],
             multiBackLangLinks=item['multiBackLangLinks'],
+            latest_timestamp=item['latest_timestamp'],
         )
     else:
         instance.title = item['title']
@@ -39,6 +40,7 @@ def savePageStatus(item):
         instance.noneTargetLangPage = item['noneTargetLangPage']
         instance.onewayLangLink = item['onewayLangLink']
         instance.multiBackLangLinks = item['multiBackLangLinks']
+        instance.latest_timestamp = item['latest_timestamp'],
     instance.save()
 
 
