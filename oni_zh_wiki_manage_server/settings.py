@@ -37,8 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
+    'corsheaders', # 注册应用cors
     'rest_framework',
+    'channels',
+    # myApplication
     'WikiModel',
 ]
 
@@ -51,9 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # CORS
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # CORS
 ]
 # 支持跨域配置开始
 CORS_ORIGIN_ALLOW_ALL = False
@@ -61,8 +61,12 @@ CORS_ORIGIN_ALLOW_ALL = False
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_WHITELIST = (
     'http://localhost',
+    'ws://localhost',
 )
 ROOT_URLCONF = 'oni_zh_wiki_manage_server.urls'
+
+# 指定ASGI的路由地址
+ASGI_APPLICATION = 'oni_zh_wiki_manage_server.routing.application'
 
 TEMPLATES = [
     {
