@@ -19,7 +19,7 @@ global_pulling_status = False
 @sync_to_async
 def savePageStatus(item):
     """保存页面状态至数据库"""
-    instance = sync_to_async(PageStatus.objects.filter(id=item['id']).first())
+    instance = PageStatus.objects.filter(id=item['id']).first()
     if instance is None:
         instance = PageStatus(
             id=item['id'],
@@ -61,12 +61,6 @@ class PageStatusConsumer(AsyncWebsocketConsumer):
         self.lock = Lock()
         self.should_receive = True
 
-    def getPageStatus_callback(self, list_ps):
-        for ps in list_ps:
-            savePageStatus(ps)
-        response_json = makeResponseJson(200, list_ps, len(list_ps))
-        self.send(json.dumps(response_json))
-
     async def sendResponse(self, response_json):
         """发送响应"""
         await self.send(json.dumps(response_json))
@@ -81,7 +75,7 @@ class PageStatusConsumer(AsyncWebsocketConsumer):
             list_ps = bot_status.get_pages_status(all_pages[i:i + 10], lang)
             result.extend(list_ps)
             for ps in list_ps:
-                savePageStatus(ps)
+                await savePageStatus(ps)
             response_json = makeResponseJson(100, list_ps, len(list_ps))
             await self.sendResponse(response_json)
         response_json = makeResponseJson(200, result, len(result))
