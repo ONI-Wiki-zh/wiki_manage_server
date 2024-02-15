@@ -22,6 +22,23 @@ def transform_dict(input_dict):
     return result
 
 
+def makePageStatus(p, target_lang):
+    """生成页面状态"""
+    p: pywikibot.Page
+    print(p.namespace().id)
+    return {
+        "id": p.pageid,
+        "title": p.title(),
+        "ns": p.namespace().id,
+        "target": target_lang,
+        "outdated": False,
+        "noneTargetLangPage": False,
+        "onewayLangLink": False,
+        "multiBackLangLinks": False,
+    }
+
+
+@DeprecationWarning
 def bot_update(site: pywikibot.Site, target: pywikibot.Site):
     to_update = {
         "outdated": [],
@@ -69,25 +86,58 @@ def bot_update(site: pywikibot.Site, target: pywikibot.Site):
     return to_update
 
 
-def get_page(target_lang: str):
-    Site_ONI_ZH = pywikibot.Site("zh", "oni")
+def check_status(p, site, target_site):
+    """检查页面的状态"""
+    p: pywikibot.Page
+    ps = makePageStatus(p, target_site.code)
+    try:
+        src_links = [link for link in p.langlinks() if link.site == target_site]
+        if len(src_links) == 0:  # ignore pages with no interwiki links
+            return ps
+
+        tgt_page = pywikibot.Page(src_links[0])
+        if not tgt_page.exists():
+            ps["noneTargetLangPage"] = True
+            return ps
+
+        back = [link for link in tgt_page.langlinks() if link.site == site]
+        if len(back) == 0:
+            ps["onewayLangLink"] = True
+            return ps
+
+        if back[0].title != p.title():
+            ps['multiBackLangLinks'] = True
+            return ps
+
+        for r in tgt_page.revisions():
+            if r.user in zh_contributors:
+                return ps
+            if "zh link".upper() in r.comment.upper():
+                return ps
+            if r.timestamp > p.latest_revision.timestamp and "版本/" not in p.title():
+                ps["outdated"] = True
+            break
+    except pywikibot.exceptions.UnknownSiteError as e:
+        msg = f"UnknownSiteError when checking {p.title()}: {str(e)}"
+        print(msg)
+        return ps
+    return ps
+    pass
+
+
+def get_page(target_lang: str, _callback):
+    """获取碳状态更新"""
+    site_ONI_ZH = pywikibot.Site("zh", "oni")
     site_target = pywikibot.Site(target_lang, "oni")
-    data = bot_update(Site_ONI_ZH, site_target)
-    dict_page = transform_dict(data)
+    all_pages = list(site_ONI_ZH.allpages(content=True))
     result = []
-    for title, item in dict_page.items():
-        p = item.get("obj", None)
-        if p is not None:
-            result.append({
-                "id": p.pageid,
-                "title": title,
-                "ns": p.namespace(),
-                "target": target_lang,
-                "outdated": item.get("outdated", False),
-                "noneTargetLangPage": item.get("non-existence", False),
-                "onewayLangLink": item.get("oneway", False),
-                "multiBackLangLinks": item.get("non-unique", False),
-            })
+    for i, p in enumerate(all_pages):
+        if i % 10 == 0:
+            print(f"Page inter-lang checked: {i}/{len(all_pages)}")
+            _callback(result)
+            result = []
+        ps = check_status(p, site_ONI_ZH, site_target)
+        result.append(ps)
     return result
     pass
 
