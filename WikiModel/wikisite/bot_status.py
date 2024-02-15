@@ -30,7 +30,7 @@ def makePageStatus(p, target_lang):
         "title": p.title(),
         "ns": p.namespace().id,
         "target": target_lang,
-        "latest_timestamp": p.editTime,
+        "latest_timestamp": p.latest_revision.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ'),
         "outdated": False,
         "noneTargetLangPage": False,
         "onewayLangLink": False,
