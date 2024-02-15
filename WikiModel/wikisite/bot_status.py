@@ -25,12 +25,12 @@ def transform_dict(input_dict):
 def makePageStatus(p, target_lang):
     """生成页面状态"""
     p: pywikibot.Page
-    print(p.namespace().id)
     return {
         "id": p.pageid,
         "title": p.title(),
         "ns": p.namespace().id,
         "target": target_lang,
+        "latest_timestamp": p.editTime,
         "outdated": False,
         "noneTargetLangPage": False,
         "onewayLangLink": False,
@@ -125,17 +125,12 @@ def check_status(p, site, target_site):
     pass
 
 
-def get_page(target_lang: str, _callback):
+def get_pages_status(pages, target_lang: str):
     """获取碳状态更新"""
     site_ONI_ZH = pywikibot.Site("zh", "oni")
     site_target = pywikibot.Site(target_lang, "oni")
-    all_pages = list(site_ONI_ZH.allpages(content=True))
     result = []
-    for i, p in enumerate(all_pages):
-        if i % 10 == 0:
-            print(f"Page inter-lang checked: {i}/{len(all_pages)}")
-            _callback(result)
-            result = []
+    for p in pages:
         ps = check_status(p, site_ONI_ZH, site_target)
         result.append(ps)
     return result
