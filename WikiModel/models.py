@@ -35,6 +35,7 @@ class PageStatus(models.Model):
     title = models.CharField(max_length=256, null="")
     ns = models.IntegerField()
     target = models.CharField(max_length=20, null="")
+    latest_timestamp = models.CharField(max_length=20)
     outdated = models.BooleanField()
     noneTargetLangPage = models.BooleanField()
     onewayLangLink = models.BooleanField()
