@@ -4,7 +4,7 @@ from django.http.response import JsonResponse
 from django.db.models import Max
 
 from WikiModel.models import Page, PageRevision, Contributor, PageDoc, PageStatus
-from WikiModel.serializers import ContributorSerializer
+from WikiModel.serializers import ContributorSerializer, PageStatusSerializer
 from rest_framework.decorators import api_view
 
 import WikiModel.wikisite.bot_format as bot_format
@@ -55,31 +55,9 @@ def page_status(request):
     if request.method == 'GET':
         target_lang = request.query_params.get('lang', None)
         if target_lang is not None:
-            result = bot_status.get_page(target_lang)
-            # 尝试保存至本地数据库
-            for item in result:
-                instance = PageStatus.objects.filter(id=item['id']).first()
-                if instance is None:
-                    instance = PageStatus(
-                        id=item['id'],
-                        title=item['title'],
-                        ns=item['ns'],
-                        target=item['target'],
-                        outdated=item['outdated'],
-                        noneTargetLangPage=item['noneTargetLangPage'],
-                        onewayLangLink=item['onewayLangLink'],
-                        multiBackLangLinks=item['multiBackLangLinks'],
-                    )
-                else:
-                    instance.title = item['title']
-                    instance.ns = item['ns']
-                    instance.target = item['target']
-                    instance.outdated = item['outdated']
-                    instance.noneTargetLangPage = item['noneTargetLangPage']
-                    instance.onewayLangLink = item['onewayLangLink']
-                    instance.multiBackLangLinks = item['multiBackLangLinks']
-                instance.save()
-            return JsonResponse(result, safe=False)
+            pagesStatus = PageStatus.objects.filter(target=target_lang)
+            serializer = PageStatusSerializer(pagesStatus, many=True)
+            return JsonResponse(serializer.data, safe=False)
         return JsonResponse([{"error": ""}], safe=False)
         pass
     return JsonResponse([{"error": "no params: lang"}], safe=False)
@@ -116,8 +94,8 @@ def contributor(request):
         if user_id is None:
             return JsonResponse([{"error": "no pageid params"}], safe=False)
         else:
-            user = Contributor.objects.all().filter(id=user_id)
-            serializer = ContributorSerializer(user, many=True)
+            users = Contributor.objects.all().filter(id=user_id)
+            serializer = ContributorSerializer(users, many=True)
             return JsonResponse(serializer.data, safe=False)
             # 'safe=False' for objects serialization
     pass
