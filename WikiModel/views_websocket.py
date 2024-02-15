@@ -12,6 +12,10 @@ from WikiModel.wikisite import bot_status, bot_wiki
 from utils.responseUtils import makeResponseJson
 
 
+# var
+global_pulling_status = False
+
+
 @sync_to_async
 def savePageStatus(item):
     """保存页面状态至数据库"""
@@ -102,7 +106,14 @@ class PageStatusConsumer(AsyncWebsocketConsumer):
             if self.should_receive:
                 print("start receive")
                 if lang is not None:
+                    global global_pulling_status
+                    if global_pulling_status:
+                        print("status pulling duplication")
+                        await self.close(4005)
+                        global_pulling_status = False
+                        return
                     self.should_receive = False
+                    global_pulling_status = True
                     run_async_task(self.pull_pages(lang))
                     await self.send(json.dumps(makeResponseJson(100, msg="仍有后续数据")))
                 else:
